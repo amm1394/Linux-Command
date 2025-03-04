@@ -1,0 +1,42 @@
+#!/bin/bash
+# نصب n8n به‌صورت لوکال روی اوبونتو با استفاده از npm و ایجاد فایل سرویس systemd
+
+# 1. به‌روزرسانی سیستم:
+sudo apt update && sudo apt upgrade -y
+
+# 2. نصب Node.js (نسخه 18):
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# 3. نصب n8n به‌صورت جهانی با npm:
+sudo npm install n8n -g
+
+# 4. ایجاد فایل سرویس systemd برای n8n روی پورت 8080:
+# لطفاً "your_username" و مسیر WorkingDirectory را متناسب با تنظیمات سیستم خود تغییر دهید.
+sudo tee /etc/systemd/system/n8n.service > /dev/null << 'EOF'
+[Unit]
+Description=n8n Workflow Automation Tool
+After=network.target
+
+[Service]
+Type=simple
+User=your_username
+WorkingDirectory=/home/your_username
+ExecStart=/usr/local/bin/n8n start --port 8080
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# 5. بارگذاری مجدد systemd و فعال‌سازی سرویس:
+sudo systemctl daemon-reload
+sudo systemctl enable n8n
+sudo systemctl start n8n
+
+# پایان اسکریپت
+
+
+chmod +x install_n8n.sh
+./install_n8n.sh
